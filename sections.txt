@@ -1,0 +1,314 @@
+Repogate
+
+    <p>
+    Repogate is a program that sits between programmers and the central
+    codebase. It checks all code updates before they're added to the codebase
+    and rejects any updates that fail these tests, which can be anything from
+    language-specific quality checks to user-defined unit tests. It's like
+    continuous integration, but the checks are performed before the codebase is
+    updated, instead of after.
+    </p>
+
+Use Cases
+
+    Making Team Members More Accountable
+
+        It is sometimes the case that team members will push code that "works on
+        my machine", but ultimately breaks the build. This can result in other
+        team members having to pick up the slack, even when continuous
+        integration identifies the individual that's responsible. RepoGate
+        prevents this by rejecting any updates that break the build, meaning
+        that team members must take the steps to fix their code before they can
+        push those changes.
+
+    For Teams With High Inertia
+
+        <p>
+        Different teams have different priorities, and it can often be difficult
+        to keep up with the latest trends such as code review, continuous
+        integration, or even using the latest tooling such as Git, which all
+        require buy-in from all team members. RepoGate works around this in a
+        number of ways.
+        </p>
+
+        <p>
+        In contrast to Git and existing continuous integration tools, RepoGate
+        is designed to adapt to your existing workflow and tooling, meaning a
+        lower barrier to entry. Furthermore, it can prevent team members from
+        pushing breaking code, so team members are forced to fix their code
+        before they push it, avoiding the situation that sometimes arises with
+        continuous integration where the build breaks but the team doesn't stop
+        to fix it.
+        </p>
+
+    For Solo Developers
+
+        When you're working on your own projects it can be frustrating when code
+        you tested locally breaks when it's pushed, even because of something as
+        simple as forgetting to commit a file. RepoGate lets you appease the
+        perfectionist in you, and keep your builds green.
+
+    For Managing Outsourced Development
+
+        Managing an outsourced development team can pose many challenges. Team
+        members can change without warning and need to be trained, code reviews
+        need to be performed frequently to keep the standard of code quality up,
+        and the responsibility of delivering the result often rests on one
+        person. By making sure that only code that builds and passes tests
+        actually makes it into the central codebase, repogate can be use to
+        minimise the risks associated with managing teams. Furthermore, help
+        messages and links to documentation and training material can be
+        integrated into the response delivered back the development team, which
+        means that less time needs to be spent on code reviews and retraining.
+
+    For Security
+
+        There have been many cases of private keys and passwords being pushed to
+        public repositories. With RepoGate you can run checks for things like
+        SSH keys and suspicious-looking password variables, and prevent such
+        secrets from making their way into to the central repository in the
+        first place, instead of having to scrub and rotate the secrets after the
+        fact.
+
+Benefits
+
+    Monitor Project Milestones
+
+        Broken code makes it difficult to see whether a project is progressing
+        as expected. Even if updates are being made on a consistent basis you
+        need to be able to run your code to ensure that everything is working as
+        it should. Repogate allows project managers to keep their finger on the
+        pulse by protecting the codebase from obvious problems.
+
+    Avoid Build Breaks
+
+        Code that "works on my machine" often fails when it makes it to other
+        programmers on the team, which can cripple productivity and prevent
+        developers from hitting deadlines. Repogate stops disruptive updates
+        from making it into the mainline, and gives developers the opportunity
+        to fix their changes and avoid the embarrassment of breaking the
+        codebase.
+
+    Prevent Downtime
+
+        Like continuous integration, repogate runs your tests before your
+        website is updated so that errant changes don't bring your whole system
+        down.
+
+    Keep Codebases Healthy
+
+        The "broken window theory" is often applied to software, and many
+        programmers have experienced the difficulty in making changes to a badly
+        maintained codebase. Repogate allows you to impose a standard of quality
+        in your code using any linters or code analysers you like.
+
+Security
+
+    This page details current security shortcomings in RepoGate. The current
+    workarounds for these is to avoid exposing RepoGate ports publicly (by using
+    a firewall, VPN, or only exposing those ports locally), and to only use
+    RepoGate to protect public repositories.
+
+    Race Conditions
+
+        RepoGate makes use of tunnelling to gain more control over SCM
+        primitives. For instance, git clone is tunnelled over a RepoGate
+        socket. This allows for more control over the connection, and also
+        allows for adding extra features to the connection, such as adding
+        transport layer security to SCM connections that don't support it.
+        However, RepoGate currently uses a naive approach to tunnelling that <a
+        href="https://stackoverflow.com/questions/30824344/security-implications-of-a-socket-race-when-tunnelling-a-sub-command">
+        suffers from a race condition</a>. The result is that, because linux TCP
+        ports are global to all users, an attacker that has access to a host
+        running a RepoGate deployment may be able to read repositories that are
+        being sent through RepoGate connections without requiring elevated
+        priviledges.
+
+    No Transport Layer Security
+
+        Because of the way it was designed (see above), RepoGate can add TLS/SSL
+        to SCMs that don't currently support it. However, this functionality has
+        not yet been added, and so communications are not currently encrypted.
+
+    Deployment Secrets
+
+        Master passwords for deployments are stored in plaintext in environment
+        variables in both the HTTP and RepoGate server processes, meaning that
+        they can be discovered by inspecting the environment variables for these
+        processes, e.g. via `/proc`. In addition, these are exposed to tests
+        that are run with this deployment (so that they can retrieve private
+        data that may be needed for testing), so that any secrets stored by
+        RepoGate can be discovered by anyone with the ability to run tests in
+        that instance.
+
+Alternatives
+
+    Continuous Integration
+
+        The main problem that RepoGate tries to solve is "breaking the build".
+        This is often solved by using continuous integration (testing the
+        codebase after changes have been received) in combination with different
+        workflows and utilities. GitFlow is probably the most widely-known
+        workflow, and Git "mirror" repositories are used to merge non-breaking
+        changes from a working copy of the repository to the mainline. While
+        this functionally achieves the same result as RepoGate, there is a lot
+        of overhead to this approach in terms of setup and complexity, and
+        requires buy-in from all team members to adopt the new workflows, and
+        perhaps tooling if Git isn't already being used. Furthermore, RepoGate
+        can simplify workflows by allowing "dev"-type branches to be ignored.
+
+    Homu, Bors and Jenkins Pretested Integration
+
+        Pretested integration is a methodology where merges of Git branches are
+        tested before they're committed. This is useful because even if the
+        heads of branches aren't broken, merging them can cause failures, so
+        pretested integration is used to prevent this. Pretested integration is
+        orthogonal to RepoGate's pre-commit testing.
+
+Downloads
+
+    <a href="https://github.com/RepoGate/frg_releases/releases/tag/v0-f9550f9cbc5248b6d330ca924c1e2e28dd3917cb">
+    v0-f9550f9cbc5248b6d330ca924c1e2e28dd3917cb
+    </a>
+
+    Disclaimer
+
+        <p>
+        This program is free software. It comes without any warranty, to the
+        extent permitted by applicable law.
+        </p>
+
+        <p class="warning">
+        RepoGate currently has security shortcomings and so should not be public
+        facing, and should only be used to protect public repositories. See the
+        <a href="security.html">Security</a> page for more details.
+        </p>
+
+    Early Shortcomings
+
+        <p>
+        RepoGate can't currently handle projects with non-alphanumeric
+        characters in the name, and can only handle committing to the "master"
+        branch.
+        </p>
+
+        <p>
+        RepoGate only supports Git repositories at present, but other SCMs may
+        be supported if there is interest.
+        </p>
+
+    Getting Started
+
+        Deploying directly to a repository hosted on GitHub or Bitbucket is
+        not yet supported by RepoGate. Instead, a RepoGate deployment must be
+        set up to act as a proxy for the hosted repository. There is a
+        <a href="https://github.com/repogate/deploy">guide</a> for setting up a
+        local RepoGate deployment, but the easiest way to get started is to run
+        the "all-in-one" Docker deployment.
+
+    "All-in-one" Docker Deployment
+
+        <p>
+        This deployment requires Docker and Git to be installed locally. Use the
+        following command to start the deployment:
+        </p>
+
+        <pre>
+        docker run -ti --name=repogate.allinone \
+        &nbsp;&nbsp;&nbsp;&nbsp;-p 127.0.0.1:8080:8080 \
+        &nbsp;&nbsp;&nbsp;&nbsp;-p 127.0.0.1:9000:9000 \
+        &nbsp;&nbsp;&nbsp;&nbsp;-p 127.0.0.1:9418:9418 \
+        &nbsp;&nbsp;&nbsp;&nbsp;repogate/allinone
+        </pre>
+
+        <p>
+        This will start an all-in-one RepoGate deployment that provides a
+        "read-only" Git service, a RepoGate service, and a minimal HTTP
+        interface. It's important to use <code>127.0.0.1</code> as the local
+        interface for now for security reasons (see <a
+        href="security.html">Security</a> for details). You will be asked for a
+        master password that will be used to secure repository passwords. There
+        will be no output once you've given a password; all the services start
+        and output from the HTTP server is forwarded to the host. you can now
+        navigate to <a href="https://localhost:8080">https://localhost:8080</a>
+        to access the minimal deployment interface.
+        </p>
+
+        <p>
+        Add a project by entering the
+        <a href="https://localhost:18080/projects">Projects</a> page and
+        selecting <a href="https://localhost:18080/projects/add">Add</a>. Here
+        you enter the details required by RepoGate to retrieve a project from a
+        hosting service. Enter the username and password you use for the
+        service, followed by the components of the project's address, and then
+        submit. There is currently no error handling in the minimal interface;
+        errors encountered while retrieving the repository will result in a
+        server error and the project will have to be removed from the
+        <a href="https://localhost:18080/projects">Projects</a> page (by
+        entering the project and selecting `Delete`) before trying again. On
+        success, you should be taken to the project screen for your new project
+        and shown the `Logs` and `Delete` options. You may now clone and push to
+        your project.
+        </p>
+
+        <p>
+        You can clone your project from the all-in-one deployment, which
+        contains a mirror of your project (don't supply a <code>.git</code>
+        suffix):
+        </p>
+
+        <pre>
+        git clone git://localhost/&lt;project-name&gt;
+        </pre>
+
+        <p>
+        Initialise the repository for use with RepoGate using the
+        <code>rg_init</code> script:
+        </p>
+
+        <pre>
+        curl https://raw.githubusercontent.com/repogate/deploy/master/scripts/rg_init.sh \
+        &nbsp;&nbsp;&nbsp;&nbsp;| sh
+        git add .
+        git commit -m "Initialised RepoGate"
+        </pre>
+
+        <p>
+        <code>.rg/test</code>, which is added to your project when it's
+        initialised, may contain a single-line bash command line that will be
+        run as a test when pushing the project. Note that it currently uses the
+        local environment to run tests in, so if the "all-in-one" Docker
+        deployment is being used then only the limited number of commands
+        available in that container can be used. The current workaround is to
+        use <code>docker exec -it -u root repogate.allinone bash</code> to start
+        a shell in the container and <code>apt-get</code> any required
+        dependencies.
+        </p>
+
+        You can now push the project once it has been initialised.  Download the
+        above binary (<code>frg</code> is the Friendly RepoGate interface to
+        RepoGate), add it to your <code>PATH</code>, and push your project:
+        </p>
+
+        <pre>
+        frg push --wall=127.0.0.1:9000 \
+        &nbsp;&nbsp;&nbsp;&nbsp;--proj=&lt;project-name&gt;
+        </pre>
+
+        <p>
+        The test in <code>.rg/test</code> will run in the environment, and the
+        output will be streamed to the client. If the test fails then the
+        changes will not be pushed, but on success they will be committed to the
+        mirror repository in the deployment, and then forwarded on to the
+        original hosted repository.
+        </p>
+
+        <p>
+        Log files for the Git daemon, the RepoGate services, and the HTTP server
+        are reachable from the home screen of the HTTP interface.
+        </p>
+
+Contact
+
+    Send feedback and queries to
+    <a href="mailto:info@repogate.com">info@repogate.com</a>.

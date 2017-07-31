@@ -1,0 +1,74 @@
+/* Copyright 2017 Sean Kelleher. All rights reserved. */
+
+body, h1, h2, ul {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #4c2c72;
+    color: #f0f0f0;
+    padding: 2em;
+}
+
+h1 {
+    margin-bottom: 0.5em;
+}
+
+header li {
+    display: block;
+    list-style: none;
+    margin-left: 1em;
+    margin-top: 0.5em;
+}
+
+header a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+body {
+    background-color: #f8f8f8;
+    font-family: 'Ubuntu';
+    min-width: 300px;
+}
+
+div {
+    background-color: #ffffff;
+    padding: 2em;
+}
+
+section#main {
+    color: #505050;
+    margin: 0 auto;
+    max-width: 480px;
+}
+
+section#main section {
+    color: #606060;
+    margin: 0;
+}
+
+footer {
+    color: #707070;
+    padding: 1em;
+    text-align: center;
+}
+
+p.warning {
+    border: 1px #f66 solid;
+    background-color: #fdd;
+    border-radius: 5px;
+    padding: 0.5em;
+}
+
+@media (min-width: 600px) {
+    header li {
+        display: inline;
+        margin-top: 0;
+    }
+
+    section#main section {
+        margin: 1.5em;
+    }
+}
