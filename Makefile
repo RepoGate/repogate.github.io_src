@@ -6,8 +6,11 @@ all: \
 	$(TGTDIR)/index.html \
 	$(TGTDIR)/index.css
 
-$(TGTDIR)/index.html: sections.txt template.html gen.py
+$(TGTDIR)/index.html: sections.txt template.html gen.py | $(TGTDIR)
 	python gen.py $<
 
-$(TGTDIR)/index.css: index.css
+$(TGTDIR)/index.css: index.css | $(TGTDIR)
 	cp $< $@
+
+$(TGTDIR):
+	mkdir $(TGTDIR)

@@ -148,14 +148,28 @@ Alternatives
         The main problem that RepoGate tries to solve is "breaking the build".
         This is often solved by using continuous integration (testing the
         codebase after changes have been received) in combination with different
-        workflows and utilities. GitFlow is probably the most widely-known
-        workflow, and Git "mirror" repositories are used to merge non-breaking
-        changes from a working copy of the repository to the mainline. While
-        this functionally achieves the same result as RepoGate, there is a lot
-        of overhead to this approach in terms of setup and complexity, and
-        requires buy-in from all team members to adopt the new workflows, and
-        perhaps tooling if Git isn't already being used. Furthermore, RepoGate
-        can simplify workflows by allowing "dev"-type branches to be ignored.
+        workflows and utilities. 
+
+        GitFlow, GitHub Flow and Other Git Workflows
+
+            GitFlow and GitHub Flow are probably the most widely-known Git-based
+            workflows. These can be used with Git "mirror" repositories to merge
+            non-breaking changes from a working copy of the repository to the
+            mainline. While this functionally achieves the same result as
+            RepoGate, there is a lot of overhead to this approach in terms of
+            setup and complexity, and requires buy-in from all team members to
+            adopt the new workflows, and perhaps tooling if Git isn't already
+            being used. Furthermore, RepoGate can simplify workflows by allowing
+            "dev"-type branches to be ignored.
+
+        Travis CI, Circle CI and Other CI Solutions
+
+            Generally speaking, RepoGate performs the same testing as other CI
+            tools, but performs that testing before changes are committed,
+            instead of after. While the use of RepoGate and other CI tools is
+            orthogonal, using RepoGate will often make the testing portion of a
+            CI pipeline redundant - when you're using RepoGate your CI test
+            results should always be "green".
 
     Homu, Bors and Jenkins Pretested Integration
 
